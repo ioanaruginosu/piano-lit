@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="x-ua-compatible" content="IE=EDGE">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="login_style.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Piano Lites | Log In</title>
+</head>
+<body>
+<h1 class="title">Piano <span class="red">L</span>i<span class="red">t</span>es</h1>
+<div class="container" id="container">
+  <div class="form-container sign-up">
+    <form id="signup-form">
+      <h1>Create Account</h1>
+      <div class="form-group">
+        <input type="text" id="username" placeholder="Email Address" required>
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="address" placeholder="Address" required>
+        <input type="tel" id="phone" placeholder="Phone Number" required pattern="[0-9]*">
+        <input type="password" id="password" placeholder="Password" required minlength="6">
+        <button type="submit">Submit</button><br>
+        <a id="message"></a>
+      </div>
+    </form>
+  </div>
+  <div class="form-container sign-in">
+    <form id="login-form">
+      <h1>Sign In</h1>
+      <div class="form-group">
+        <input type="text" id="usernameSignIn" placeholder="Email Address" required>
+        <input type="password" id="passwordSignIn" placeholder="Password" required minlength="6">
+        <a href="#">Forgot Password?</a>
+        <button type="submit">Sign In</button><br>
+        <a id="message2"></a>
+      </div>
+    </form>
+  </div>
+  <div class="toggle-container">
+    <div class="toggle">
+      <div class="toggle-panel toggle-left">
+        <h1>Welcome!</h1>
+        <p>Enter your personal details to sign up!</p>
+        <button class="hidden" id="login">Sign In</button>
+      </div>
+      <div class="toggle-panel toggle-right">
+        <h1>Not a member yet? Register now!</h1>
+        <p>Fill in the details to create an account and use the app</p>
+        <button class="hidden" id="register">Sign Up</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const API = 'http://145.126.11.93:5000/api'
+  // Toggle effect between forms
+  const container = document.getElementById('container');
+  const registerButton = document.getElementById('register');
+  const loginButton = document.getElementById('login');
+  registerButton.addEventListener('click', () => {
+    container.classList.add('active');
+  });
+  loginButton.addEventListener('click', () => {
+    container.classList.remove('active');
+  });
+
+  // Registration form submit event (using token-based backend, no cookie is needed)
+  const signupForm = document.getElementById('signup-form');
+  signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const name = document.getElementById('name').value;
+    const address = document.getElementById('address').value;
+    const phone = document.getElementById('phone').value;
+    const password = document.getElementById('password').value;
+    try {
+      const response = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, name, address, phone })
+      });
+      const data = await response.json();
+      document.getElementById('message').textContent = data.message || data.error;
+    } catch (err) {
+      console.error(err);
+      document.getElementById('message').textContent = 'An error occurred.';
+    }
+  });
+
+  // Login form submit event – store the token on success and redirect to songs.html
+  const loginForm = document.getElementById('login-form');
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('usernameSignIn').value;
+    const password = document.getElementById('passwordSignIn').value;
+    try {
+      const response = await fetch(`${API}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await response.json();
+      if(response.ok){
+        // Save token in localStorage
+        localStorage.setItem('token', data.token);
+        window.location.href = "home.html";
+      } else {
+        document.getElementById('message2').textContent = data.error || 'Login failed.';
+      }
+    } catch (err) {
+      console.error(err);
+      document.getElementById('message2').textContent = 'An error occurred.';
+    }
+  });
+</script>
+</body>
+</html>

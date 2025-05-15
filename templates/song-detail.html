@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Practice Song</title>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+          crossorigin="anonymous"></script>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="songs.css">
+  <link rel="icon" type="image/x-icon" href="logo.png">
+  <style>
+    #stats-panel {
+      display: none;
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.6);
+      align-items:center; justify-content:center;
+      z-index:1050;
+    }
+    #stats-panel .panel-content {
+      background:white;
+      padding:20px;
+      max-width:500px; width:90%;
+      max-height:80%; overflow-y:auto;
+      border-radius:.5rem;
+      position:relative;
+    }
+    #stats-panel .close-btn {
+      position:absolute; top:10px; right:15px;
+      font-size:1.5rem;
+      cursor:pointer;
+      background:none; border:none;
+    }
+  </style>
+</head>
+<body onload="initDetail()">
+<div id="xpProgressWrapper" class="position-fixed top-0 end-0 m-3">
+  <div id="xpProgress" class="progress light-red position-relative" style="width:160px; cursor:pointer;" title="Click for details">
+    <div id="xpProgressBar" class="progress-bar red" role="progressbar" style="width:0%"></div>
+    <span id="xpProgressText"
+          class="position-absolute top-50 start-50 translate-middle fw-bold text-dark">
+    0/100 XP
+  </span>
+  </div>
+
+</div>
+<!-- XP Modal -->
+<div class="modal fade" id="xpModal" tabindex="-1" aria-labelledby="xpModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- CENTERED HEADER -->
+      <div class="modal-header justify-content-center text-center position-relative">
+        <!-- SVG PROGRESS CIRCLE -->
+        <div class="xp-circle-wrapper">
+          <svg id="xpModalSvg" width="150" height="150">
+            <!-- bg circle -->
+            <circle cx="75" cy="75" r="70" stroke="#FFA6A6" stroke-width="10" fill="none"/>
+            <!-- progress circle -->
+            <circle
+                    id="xpCircle"
+                    cx="75" cy="75" r="70"
+                    stroke="#dc3545"
+                    stroke-width="10"
+                    fill="none"
+                    stroke-dasharray="439.82"     />   <!-- set by JS, see below -->
+            <!--                    stroke-dashoffset="439.82"-->
+            <!--                    transform="rotate(-90 75 75)"-->
+            <!--        -->
+            <!-- center text -->
+            <text
+                    id="xpCircleText"
+                    x="75" y="85"
+                    text-anchor="middle"
+                    font-size="24"
+                    fill="#000"
+            >0/100</text>
+          </svg>
+        </div>
+
+        <h1 id="header-title"></h1>
+        <!-- close button stays top-right -->
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3"
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- body unchanged -->
+      <div class="modal-body">
+        <p id="xpModalBody">Loading...</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<a href="songs.html" class="back-btn" aria-label="Go back">
+  <i class="fas fa-arrow-left"></i>
+</a>
+
+
+<div class="sc-bottom-bar">
+
+  <a href="home.html" class="sc-menu-item">
+    <i class="fas fa-home"></i>
+  </a>
+  <a href="songs.html" class="sc-menu-item sc-current">
+    <i class="fas fa-music"></i>
+  </a>
+  <a href="music-theory.html" class="sc-menu-item">
+    <i class="fas fa-book-open"></i>
+  </a>
+  <a href="accomplishments.html" class="sc-menu-item">
+    <i class="fas fa-trophy"></i>
+  </a>
+  <a href="profile.html" class="sc-menu-item">
+    <i class="fas fa-user"></i>
+  </a>
+  <a class="sc-nav-indicator">
+  </a>
+
+</div>
+
+<div class="container py-4">
+  <h1 class="page-title centered big" id="songTitle">Loading…</h1>
+
+  <div class="mb-4">
+    <h5 class="sub-title">Select LED Colors</h5>
+    <div class="d-flex">
+      <div class="me-3">
+        <label for="left-hand-color" class="form-label">Left Hand</label>
+        <input type="color" id="left-hand-color" value="#FFFDB7">
+      </div>
+      <div>
+        <label for="right-hand-color" class="form-label">Right Hand</label>
+        <input type="color" id="right-hand-color" value="#CAD6FF">
+      </div>
+    </div>
+  </div>
+
+  <div id="stats-panel">
+    <div class="panel-content">
+      <button class="close-btn" onclick="toggleStatsPanel()">×</button>
+      <h3>Performance Statistics</h3>
+      <p>🟢 Correct: <span id="stat-correct">-</span></p>
+      <p>🔴 Incorrect: <span id="stat-incorrect">-</span></p>
+      <p>🟡 Off-time: <span id="stat-offtime">-</span></p>
+      <p>🎯 Accuracy: <span id="stat-accuracy">-</span>%</p>
+      <h5 class="mt-3">Replay</h5>
+      <video id="stat-video" width="100%" controls></video>
+    </div>
+  </div>
+
+  <div id="buttonGroup" class="mb-4">
+    <h5 class="sub-title">Select the mode</h5>
+    <button class="btn blue" onclick="showSpeedOptions()">Start</button>
+    <button class="btn red" onclick="startOwnPace()">Own Pace</button>
+    <button class="btn yellow" onclick="practiceLeftHand()">Left Hand</button>
+    <button class="btn green" onclick="practiceRightHand()">Right Hand</button>
+  </div>
+
+  <div id="speedButtons" class="mb-4" style="display:none;">
+    <button class="btn btn-warning me-2" onclick="startSongWithSpeed('fast')">Fast</button>
+    <button class="btn btn-warning me-2" onclick="startSongWithSpeed('normal')">Normal</button>
+    <button class="btn btn-warning"        onclick="startSongWithSpeed('slow')">Slow</button>
+  </div>
+
+  <div id="result" class="mt-4"></div>
+
+  <h2 class="sub-title">Your History for This Song</h2>
+  <ul id="song-history-list" class="list-group mb-4">
+    <li class="list-group-item">Loading…</li>
+  </ul>
+</div>
+
+<script>
+  const API = 'http://145.126.11.93:5000/api';
+  let songPath, songFile;
+
+  const niceNames = {
+    "Twinkle_Twinkle_Right_RIGHT.mid": "Twinkle Twinkle Little Star",
+    "old-macdonald-had-a-farm.mid":   "Old MacDonald Had a Farm",
+    "test.mid":                      "Test Song",
+    "Happy-Birthday-MIDI.mid": "Happy Birthday To You",
+    "Marry-Had-a-Little-Lamb.mid": "Marry Had a Little Lamb"
+  };
+
+  function getToken() {
+    return localStorage.getItem('token');
+  }
+
+  function initDetail() {
+    const params = new URLSearchParams(location.search);
+    if (params.has('songPath')) {
+      songPath = decodeURIComponent(params.get('songPath'));
+      songFile = songPath.split('/').pop();
+    } else {
+      songFile = params.get('song');
+      songPath = songFile;
+    }
+    document.getElementById('songTitle').textContent =
+            niceNames[songFile] || songFile;
+
+    loadSongHistory();              // <-- fetch per-song history
+  }
+
+  function showSpeedOptions() {
+    document.getElementById('speedButtons').style.display = 'block';
+  }
+
+  function startSongWithSpeed(speed) {
+    callBackend('start-song', { speed });
+  }
+  function startOwnPace()     { callBackend('start-own-pace', {}); }
+  function practiceLeftHand() { callBackend('start-own-pace', { hand_mode:'left'  }); }
+  function practiceRightHand(){ callBackend('start-own-pace', { hand_mode:'right' }); }
+
+  function callBackend(endpoint, extras) {
+    const payload = {
+      midi_path: songPath,
+      left_color:  document.getElementById('left-hand-color').value,
+      right_color: document.getElementById('right-hand-color').value,
+      ...extras
+    };
+
+    fetch(`${API}/${endpoint}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(payload)
+    })
+            .then(r => r.json())
+            .then(data => {
+              renderResult(data);
+
+              // --- NEW: persist this play into history ---
+              if (data.stats) {
+                fetch(`${API}/save-history`, {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken()}`
+                  },
+                  body: JSON.stringify({
+                    songFile:  songPath,
+                    songTitle: niceNames[songFile] || songFile,
+                    stats:     data.stats,
+                    timestamp: new Date().toISOString().slice(0,19).replace('T',' ')
+                  })
+                })
+                        .then(r => r.json())
+                        .then(() => loadSongHistory())
+                        .catch(err => console.error('Error saving history:', err));
+              } else {
+                loadSongHistory();
+              }
+            })
+            .catch(console.error);
+  }
+
+
+  function renderResult(data) {
+    const div = document.getElementById('result');
+    if (data.error) {
+      div.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+      return;
+    }
+    let html = `<div class="alert alert-success">${data.message}</div>`;
+    if (data.stats) {
+      html += `
+          <p>✅ ${data.stats.correct_notes} &nbsp; ❌ ${data.stats.incorrect_notes}
+             ${data.stats.off_time_notes!=null?` &nbsp; ⏱️ ${data.stats.off_time_notes}`:''}</p>
+          <p>🎯 ${data.stats.accuracy.toFixed(2)}%</p>`;
+      if (data.stats.video_url) {
+        html += `
+            <video width="100%" controls class="mt-3">
+              <source src="${data.stats.video_url}" type="video/mp4">
+            </video>`;
+      }
+    }
+    div.innerHTML = html;
+  }
+
+  function loadSongHistory() {
+    fetch(
+            `${API}/song-history?songFile=${encodeURIComponent(songFile)}`,
+            {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Bearer ' + getToken()
+              }
+            }
+    )
+            .then(response => {
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              return response.json();
+            })
+            .then(data => {
+              const ul = document.getElementById('song-history-list');
+              ul.innerHTML = '';
+
+              if (!data.history.length) {
+                ul.innerHTML = '<li class="list-group-item">No plays yet</li>';
+                return;
+              }
+
+              data.history.forEach((entry, i) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+        <span>${entry.timestamp}</span>
+        <button class="btn btn-sm btn-outline-primary" onclick="showStats(${i})">
+          View Stats
+        </button>
+      `;
+                ul.appendChild(li);
+              });
+            })
+            .catch(err => console.error('Error loading song history:', err));
+  }
+
+
+  function showStats(index) {
+    fetch(`${API}/song-history?songFile=${encodeURIComponent(songFile)}`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    })
+            .then(r=>r.json())
+            .then(data => {
+              const stats = data.history[index].stats;
+              document.getElementById('stat-correct').textContent   = stats.correct_notes || 0;
+              document.getElementById('stat-incorrect').textContent = stats.incorrect_notes || 0;
+              document.getElementById('stat-offtime').textContent   = stats.off_time_notes || 0;
+              document.getElementById('stat-accuracy').textContent  = stats.accuracy.toFixed(2);
+              if (stats.video_url) {
+                const vid = document.getElementById('stat-video');
+                vid.src = stats.video_url;
+              }
+              toggleStatsPanel();
+            });
+  }
+
+  function toggleStatsPanel() {
+    const p = document.getElementById('stats-panel');
+    p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+
+  const GAP = 16; // offset between icon & indicator
+  const BG_OFFSET = 8; // offset for menu_bar.backgroundPosition
+
+  const menuBar = document.querySelector('.sc-bottom-bar');
+  const menuItems = document.querySelectorAll('.sc-menu-item');
+  const menuIndicator = document.querySelector('.sc-nav-indicator');
+
+  const savedPos = sessionStorage.getItem('navPos');
+  if (savedPos !== null) {
+    menuIndicator.classList.add('is-instant');
+    menuIndicator.style.left = `${savedPos}px`;
+    menuBar.style.backgroundPosition =
+            `${savedPos - BG_OFFSET}px`;
+  }
+
+  requestAnimationFrame(() => {
+    menuIndicator.classList.remove('is-instant');
+  });
+
+  const current = document.querySelector('.sc-current');
+  if (current) {
+    const pos = current.offsetLeft - GAP;
+    menuIndicator.style.left = `${pos}px`;
+    menuBar.style.backgroundPosition = `${pos - BG_OFFSET}px`;
+    sessionStorage.setItem('navPos', pos);             // remember for next page
+  }
+
+  menuItems.forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();                              // delay navigation
+
+      const href = item.getAttribute('href');
+      const pos = item.offsetLeft - GAP;
+
+      moveIndicator(pos);
+      setCurrent(item);
+      sessionStorage.setItem('navPos', pos);
+
+      menuIndicator.addEventListener('transitionend', function handler() {
+        window.location.href = href;
+        menuIndicator.removeEventListener('transitionend', handler);
+      });
+    });
+  });
+
+  function moveIndicator (pos) {
+    menuIndicator.style.left = `${pos}px`;
+    menuBar.style.backgroundPosition = `${pos - BG_OFFSET}px`;
+  }
+
+  function setCurrent (elem) {
+    elem.parentElement
+            .querySelectorAll('.sc-current')
+            .forEach(node => node.classList.remove('sc-current'));
+    elem.classList.add('sc-current');
+  }
+
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const xpProgress    = document.getElementById('xpProgress');
+    const xpModalEl     = document.getElementById('xpModal');
+    const xpModal       = new bootstrap.Modal(xpModalEl);
+    const xpModalBody   = document.getElementById('xpModalBody');
+    const xpCircle      = document.getElementById('xpCircle');
+    const xpCircleText  = document.getElementById('xpCircleText');
+    const xpHeader = document.getElementById('header-title');
+
+    const RADIUS        = 70;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS; // ≈439.82
+
+    xpCircle.setAttribute('stroke-dasharray', CIRCUMFERENCE);
+
+    fetch(`${API}/get-user-details`, {
+      headers: {'Authorization': 'Bearer ' + getToken()}
+    })
+            .then(r => r.json())
+            .then(json => {
+              const totalXP = json.user.xp || 0;
+              const level   = json.user.level || 1;
+
+              xpProgress.addEventListener('click', () => {
+                const need      = 100 * level - totalXP;
+                const nextLevel = level + 1;
+                xpHeader.textContent = `Level ${level}`
+                xpModalBody.textContent = `
+        You have ${totalXP} XP total.
+        You need ${need} more XP to advance to Level ${nextLevel}!
+      `;
+
+                const relXP   = totalXP % 100;
+                const percent = relXP / 100;
+                const offset  = CIRCUMFERENCE * (1 - percent);
+                xpCircle.setAttribute('stroke-dashoffset', offset);
+
+                xpCircleText.textContent = `${relXP}/100`;
+
+                xpModal.show();
+              });
+            })
+            .catch(err => console.error('XP load error:', err));
+  });
+
+</script>
+</body>
+</html>

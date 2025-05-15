@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Learn Notes Practice</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+   <link rel="stylesheet" href="songs.css">
+</head>
+<body>
+<a href="music-theory.html" class="back-btn" aria-label="Go back">
+  <i class="fas fa-arrow-left"></i>
+</a>
+
+<div id="xpProgressWrapper" class="position-fixed top-0 end-0 m-3">
+  <div id="xpProgress" class="progress light-red position-relative" style="width:160px; cursor:pointer;" title="Click for details">
+    <div id="xpProgressBar" class="progress-bar red" role="progressbar" style="width:0%"></div>
+    <span id="xpProgressText"
+          class="position-absolute top-50 start-50 translate-middle fw-bold text-dark">
+    0/100 XP
+  </span>
+  </div>
+
+</div>
+<!-- XP Modal -->
+<div class="modal fade" id="xpModal" tabindex="-1" aria-labelledby="xpModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- CENTERED HEADER -->
+      <div class="modal-header justify-content-center text-center position-relative">
+        <!-- SVG PROGRESS CIRCLE -->
+        <div class="xp-circle-wrapper">
+          <svg id="xpModalSvg" width="150" height="150">
+            <!-- bg circle -->
+            <circle cx="75" cy="75" r="70" stroke="#FFE4E4" stroke-width="10" fill="none"/>
+            <!-- progress circle -->
+            <circle
+                    id="xpCircle"
+                    cx="75" cy="75" r="70"
+                    stroke="#FFA6A6"
+                    stroke-width="10"
+                    fill="none"
+                    stroke-dasharray="439.82"     />   <!-- set by JS, see below -->
+            <!--                    stroke-dashoffset="439.82"-->
+            <!--                    transform="rotate(-90 75 75)"-->
+            <!--        -->
+            <!-- center text -->
+            <text
+                    id="xpCircleText"
+                    x="75" y="85"
+                    text-anchor="middle"
+                    font-size="24"
+                    fill="#000"
+            >0/100</text>
+          </svg>
+        </div>
+
+        <h1 id="header-title"></h1>
+        <!-- close button stays top-right -->
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3"
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- body unchanged -->
+      <div class="modal-body">
+        <p id="xpModalBody">Loading...</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <main class="page-wrapper">
+    <h1 class="page-title">Learn the notes on the keyboard</h1>
+    <form id="learnNotesForm">
+      <div class="mb-3">
+        <label for="noteSelect" class="form-label">Select Note:</label>
+        <select class="form-select" id="noteSelect" required>
+          <option value="do">Do (C)</option>
+          <option value="re">Re (D)</option>
+          <option value="mi">Mi (E)</option>
+          <option value="fa">Fa (F)</option>
+          <option value="sol">Sol (G)</option>
+          <option value="la">La (A)</option>
+          <option value="ti">Ti (B)</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Mode:</label><br>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="modeOptions" id="learningMode" value="learning" checked>
+          <label class="form-check-label" for="learningMode">Learning Mode</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="modeOptions" id="testMode" value="test">
+          <label class="form-check-label" for="testMode">Test Mode</label>
+        </div>
+      </div>
+      <button type="submit" class="btn">Start Practice</button>
+    </form>
+
+  </main>
+
+  <div id="result" class="mt-3" style="padding: 20px; margin-top: 0;"></div>
+
+<div class="sc-bottom-bar">
+
+  <a href="home.html" class="sc-menu-item">
+    <i class="fas fa-home"></i>
+  </a>
+  <a href="songs.html" class="sc-menu-item">
+    <i class="fas fa-music"></i>
+  </a>
+  <a href="music-theory.html" class="sc-menu-item sc-current">
+    <i class="fas fa-book-open"></i>
+  </a>
+  <a href="accomplishments.html" class="sc-menu-item">
+    <i class="fas fa-trophy"></i>
+  </a>
+  <a href="profile.html" class="sc-menu-item">
+    <i class="fas fa-user"></i>
+  </a>
+  <a class="sc-nav-indicator">
+  </a>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const API = 'http://145.126.11.93:5000/api';
+
+  function getToken() {
+    return localStorage.getItem('token');
+  }
+
+  document.getElementById('learnNotesForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const note = document.getElementById('noteSelect').value;
+    const mode = document.querySelector('input[name="modeOptions"]:checked').value;
+
+    fetch(`${API}/learn-notes`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + getToken()
+      },
+      body: JSON.stringify({ note: note, mode: mode })
+    })
+            .then(response => response.json())
+            .then(data => {
+              let resultDiv = document.getElementById('result');
+              if (data.error) {
+                resultDiv.innerHTML = '<div class="alert alert-danger">' + data.error + '</div>';
+              } else {
+                let html = '<div class="alert alert-success">' + data.message + '</div>';
+                if (data.stats) {
+                  html += '<div>Correct Notes: ' + data.stats.correct_notes + '</div>';
+                  html += '<div>Incorrect Notes: ' + data.stats.incorrect_notes + '</div>';
+                  html += '<div>Accuracy: ' + data.stats.accuracy.toFixed(2) + '%</div>';
+                }
+                resultDiv.innerHTML = html;
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              document.getElementById('result').innerHTML = '<div class="alert alert-danger">An error occurred.</div>';
+            });
+  });
+
+
+  const GAP = 16; // offset between icon & indicator
+  const BG_OFFSET = 8; // offset for menu_bar.backgroundPosition
+
+  const menuBar = document.querySelector('.sc-bottom-bar');
+  const menuItems = document.querySelectorAll('.sc-menu-item');
+  const menuIndicator = document.querySelector('.sc-nav-indicator');
+
+  const savedPos = sessionStorage.getItem('navPos');
+  if (savedPos !== null) {
+    menuIndicator.classList.add('is-instant');
+    menuIndicator.style.left = `${savedPos}px`;
+    menuBar.style.backgroundPosition =
+            `${savedPos - BG_OFFSET}px`;
+  }
+
+  requestAnimationFrame(() => {
+    menuIndicator.classList.remove('is-instant');
+  });
+
+  const current = document.querySelector('.sc-current');
+  if (current) {
+    const pos = current.offsetLeft - GAP;
+    menuIndicator.style.left = `${pos}px`;
+    menuBar.style.backgroundPosition = `${pos - BG_OFFSET}px`;
+    sessionStorage.setItem('navPos', pos);             // remember for next page
+  }
+
+  menuItems.forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+
+      const href = item.getAttribute('href');
+      const pos = item.offsetLeft - GAP;
+
+      moveIndicator(pos);
+      setCurrent(item);
+      sessionStorage.setItem('navPos', pos);
+
+      menuIndicator.addEventListener('transitionend', function handler() {
+        window.location.href = href;
+        menuIndicator.removeEventListener('transitionend', handler);
+      });
+    });
+  });
+
+  function moveIndicator (pos) {
+    menuIndicator.style.left = `${pos}px`;
+    menuBar.style.backgroundPosition = `${pos - BG_OFFSET}px`;
+  }
+
+  function setCurrent (elem) {
+    elem.parentElement
+            .querySelectorAll('.sc-current')
+            .forEach(node => node.classList.remove('sc-current'));
+    elem.classList.add('sc-current');
+  }
+
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const xpProgress    = document.getElementById('xpProgress');
+    const xpModalEl     = document.getElementById('xpModal');
+    const xpModal       = new bootstrap.Modal(xpModalEl);
+    const xpModalBody   = document.getElementById('xpModalBody');
+    const xpCircle      = document.getElementById('xpCircle');
+    const xpCircleText  = document.getElementById('xpCircleText');
+    const xpHeader = document.getElementById('header-title');
+
+    const RADIUS        = 70;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS; // ≈439.82
+
+    xpCircle.setAttribute('stroke-dasharray', CIRCUMFERENCE);
+
+    fetch(`${API}/get-user-details`, {
+      headers: {'Authorization': 'Bearer ' + getToken()}
+    })
+            .then(r => r.json())
+            .then(json => {
+              const totalXP = json.user.xp || 0;
+              const level   = json.user.level || 1;
+
+              xpProgress.addEventListener('click', () => {
+                const need      = 100 * level - totalXP;
+                const nextLevel = level + 1;
+                xpHeader.textContent = `Level ${level}`
+                xpModalBody.textContent = `
+        You have ${totalXP} XP total.
+        You need ${need} more XP to advance to Level ${nextLevel}!
+      `;
+
+                const relXP   = totalXP % 100;
+                const percent = relXP / 100;
+                const offset  = CIRCUMFERENCE * (1 - percent);
+                xpCircle.setAttribute('stroke-dashoffset', offset);
+
+                xpCircleText.textContent = `${relXP}/100`;
+
+                xpModal.show();
+              });
+            })
+            .catch(err => console.error('XP load error:', err));
+  });
+</script>
+</body>
+</html>
