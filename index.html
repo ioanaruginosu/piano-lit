@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="x-ua-compatible" content="IE=EDGE">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="login_style.css">
+    <link rel="stylesheet" href="templates/login_style.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <title>Piano Lites | Log In</title>
@@ -106,7 +106,7 @@
             if (response.ok) {
                 // Save token in localStorage
                 localStorage.setItem('token', data.token);
-                window.location.href = "home.html";
+                window.location.href = "templates/home.html";
             } else {
                 document.getElementById('message2').textContent = data.error || 'Login failed.';
             }
@@ -118,12 +118,6 @@
 
 
 
-        document
-        .getElementById('goButton')
-        .addEventListener('click', function() {
-        // replace 'foo.html' with whatever URL or path you need
-        window.location.href = 'templates/login.html';
-    });
 
 </script>
 </body>
