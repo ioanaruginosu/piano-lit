@@ -78,56 +78,63 @@
 </div>
 
 
-  <main class="page-wrapper">
-    <h1 class="page-title">🎶 Select a Song to Practice</h1>
+<main class="page-wrapper">
+  <h1 class="page-title">🎶 Select a Song to Practice</h1>
 
-      <div class="song-list row gx-4 gy-4">
-        <div class="song-card col-md-4">
-          <div class="card p-3 h-100" onclick="goToSongDetail('Twinkle_Twinkle_Right_RIGHT.mid')">
-            <div class="card-body">
-              <h5 class="card-title">🎵 Twinkle Twinkle Little Star</h5>
-            </div>
-          </div>
-        </div>
-        <div class="song-card col-md-4" onclick="goToSongDetail('old-macdonald-had-a-farm.mid')">
-          <div class="card p-3 h-100">
-            <div class="card-body">
-              <h5 class="card-title">🎵 Old MacDonald Had a Farm</h5>
-            </div>
-          </div>
-        </div>
-        <div class="song-card col-md-4" onclick="goToSongDetail('Happy-Birthday-MIDI.mid')">
-          <div class="card p-3 h-100">
-            <div class="card-body">
-              <h5 class="card-title">🎵 Happy Birthday To You</h5>
-            </div>
-          </div>
-        </div>
-        <div class="song-card col-md-4" onclick="goToSongDetail('Marry-Had-a-Little-Lamb.mid')">
-          <div class="card p-3 h-100">
-            <div class="card-body">
-              <h5 class="card-title">🎵 Marry Had a Little Lamb</h5>
-            </div>
-          </div>
-        </div>
-        <div class="song-card col-md-4" onclick="goToSongDetail('test.mid')">
-          <div class="card p-3 h-100">
-            <div class="card-body">
-              <h5 class="card-title">🎵 Test</h5>
-            </div>
-          </div>
+  <div class="song-list row gx-4 gy-4">
+    <div class="song-card col-md-4">
+      <div class="card p-3 h-100" onclick="goToSongDetail('Twinkle_Twinkle_Right_RIGHT.mid')">
+        <div class="card-body">
+          <h5 class="card-title">🎵 Twinkle Twinkle Little Star</h5>
         </div>
       </div>
+    </div>
+    <div class="song-card col-md-4" onclick="goToSongDetail('old-macdonald-had-a-farm.mid')">
+      <div class="card p-3 h-100">
+        <div class="card-body">
+          <h5 class="card-title">🎵 Old MacDonald Had a Farm</h5>
+        </div>
+      </div>
+    </div>
+    <div class="song-card col-md-4" onclick="goToSongDetail('hedwigstheme.mid')">
+      <div class="card p-3 h-100">
+        <div class="card-body">
+          <h5 class="card-title">🎵 Hedwig's Theme (from Harry Potter)</h5>
+        </div>
+      </div>
+    </div>
+    <div class="song-card col-md-4" onclick="goToSongDetail('Happy-Birthday-MIDI.mid')">
+      <div class="card p-3 h-100">
+        <div class="card-body">
+          <h5 class="card-title">🎵 Happy Birthday To You</h5>
+        </div>
+      </div>
+    </div>
+    <div class="song-card col-md-4" onclick="goToSongDetail('Marry-Had-a-Little-Lamb.mid')">
+      <div class="card p-3 h-100">
+        <div class="card-body">
+          <h5 class="card-title">🎵 Marry Had a Little Lamb</h5>
+        </div>
+      </div>
+    </div>
+    <div class="song-card col-md-4" onclick="goToSongDetail('test.mid')">
+      <div class="card p-3 h-100">
+        <div class="card-body">
+          <h5 class="card-title">🎵 Test</h5>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
-        <label for="midi-file-input" class="upload-font">
-          <img src="upload.png" style="max-width: 50px;" alt="Piano Icon" />
-          Upload favorite song
-        </label>
-        <input type="file" id="midi-file-input" style="display:none;" accept=".mid" onchange="displayFileName()">
-        <p id="file-name-display"></p>
+  <label for="midi-file-input" class="upload-font">
+    <img src="upload.png" style="max-width: 50px;" alt="Piano Icon" />
+    Upload favorite song
+  </label>
+  <input type="file" id="midi-file-input" style="display:none;" accept=".mid" onchange="displayFileName()">
+  <p id="file-name-display"></p>
 
-  </main>
+</main>
 
 <div id="result" class="mt-3"></div>
 
@@ -194,7 +201,7 @@
 
 
 <script>
-  const API = 'http://145.126.11.93:5000/api';
+  const API = 'http://192.168.50.135:5000/api';
 
   function goToSongDetail(songFile) {
     window.location.href = `song-detail.html?song=${encodeURIComponent(songFile)}`;

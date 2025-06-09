@@ -63,9 +63,9 @@
                     stroke-width="10"
                     fill="none"
                     stroke-dasharray="439.82"     />   <!-- set by JS, see below -->
-<!--                    stroke-dashoffset="439.82"-->
-<!--                    transform="rotate(-90 75 75)"-->
-<!--        -->
+            <!--                    stroke-dashoffset="439.82"-->
+            <!--                    transform="rotate(-90 75 75)"-->
+            <!--        -->
             <!-- center text -->
             <text
                     id="xpCircleText"
@@ -162,7 +162,7 @@
 </div>
 
 <script>
-  const API = 'http://145.126.11.93:5000/api';
+  const API = 'http://192.168.50.135:5000/api';
 
   let allAchievements = [];
   let achIndex = 0;
@@ -465,7 +465,7 @@
 
 
 
-function renderAchievements() {
+  function renderAchievements() {
     const ul = document.getElementById('achievements-list');
     ul.innerHTML = '';
 
